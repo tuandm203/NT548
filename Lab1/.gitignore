@@ -1,0 +1,19 @@
+# Terraform hidden folders
+.terraform/
+
+# Local state files
+*.tfstate
+*.tfstate.backup
+
+
+# Terraform plan output
+*.out
+
+# Lock file (optional, keeps version pinning)
+.terraform.lock.hcl
+
+# Binary files
+*.exe
+
+# Shell script output
+*.log

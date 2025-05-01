@@ -1,0 +1,82 @@
+resource "aws_vpc" "vpc" {
+  cidr_block           = var.vpc_cidr_block
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    "Name" = var.vpc_name
+  }
+}
+
+resource "aws_subnet" "private_subnet" {
+  count = length(var.private_subnet)
+
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.private_subnet[count.index]
+  availability_zone = var.availability_zone[count.index % length(var.availability_zone)]
+
+  tags = {
+    "Name" = "private-subnet"
+  }
+}
+
+resource "aws_subnet" "public_subnet" {
+  count = length(var.public_subnet)
+
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.public_subnet[count.index]
+  availability_zone = var.availability_zone[count.index % length(var.availability_zone)]
+
+  tags = {
+    "Name" = "public-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "ig" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    "Name" = "internet-gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.ig.id
+  }
+
+  tags = {
+    "Name" = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_association" {
+  for_each       = { for k, v in aws_subnet.public_subnet : k => v }
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    protocol  = -1
+    self      = true
+    from_port = 0
+    to_port   = 0
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Default Security Group"
+  }
+}
