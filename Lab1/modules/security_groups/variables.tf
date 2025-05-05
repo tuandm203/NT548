@@ -1,9 +1,9 @@
-variable "public_ip_range" {
-  description = "Public IP range for Security Group"
-  type        = list(string)
+variable "vpc_id" {
+  description = "ID của VPC mà security groups sẽ được tạo"
+  type        = string
 }
 
-variable "private_ip_range" {
-  description = "Private IP range for Security Group"
-  type        = list(string)
+variable "my_ip" {
+  description = "Địa chỉ IP được phép truy cập SSH vào public instances"
+  type        = string
 }

@@ -17,3 +17,6 @@
 
 # Shell script output
 *.log
+
+#file key pair
+.pem

@@ -39,22 +39,18 @@ variable "instance_type" {
   type        = string
 }
 
-variable "key_name" {
-  description = "Key pair name for EC2 instance"
+
+variable "allowed_ip" {
+  description = "Allowed IP for EC2"
   type        = string
 }
 
-variable "allowed_ip_range" {
-  description = "Allowed IP range for EC2"
-  type        = list(string)
+variable "public_instance_count" {
+  description = "Number of public EC2 instances"
+  type        = number
 }
 
-variable "public_ip_range" {
-  description = "Public IP range for Security Group"
-  type        = list(string)
-}
-
-variable "private_ip_range" {
-  description = "Private IP range for Security Group"
-  type        = list(string)
+variable "private_instance_count" {
+  description = "Number of private EC2 instances"
+  type        = number
 }

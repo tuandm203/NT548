@@ -37,19 +37,38 @@ module "route_table" {
   nat_gateway_id      = module.nat_gateway.nat_gateway_id
 }
 
+module "security_groups" {
+  source           = "./modules/security_groups"
+  vpc_id  = module.vpc.vpc_id
+  my_ip = var.allowed_ip 
+}
+
 module "ec2" {
-  source           = "./modules/ec2"
-  ami_id           = var.ami_id
-  instance_type    = var.instance_type
-  key_name         = var.key_name
-  allowed_ip_range = var.allowed_ip_range
+  source                 = "./modules/ec2"
+  ami_id                 = var.ami_id
+  instance_type          = var.instance_type
+  public_subnet_ids      = module.vpc.public_subnet_ids
+  private_subnet_ids     = module.vpc.private_subnet_ids
+  public_sg_id           = module.security_groups.public_security_group_id
+  private_sg_id          = module.security_groups.private_security_group_id
+  key_name               = aws_key_pair.ec2_keypair.key_name
+  public_instance_count  = var.public_instance_count
+  private_instance_count = var.private_instance_count
 }
 
 
+resource "local_file" "private_ec2_key" {
+    filename                = "private_ec2_key.pem"
+    file_permission         = "600"
+    directory_permission    = "700"
+    content                 = tls_private_key.ssh.private_key_pem
+}
 
-
-module "security_groups" {
-  source           = "./modules/security_groups"
-  public_ip_range  = var.public_ip_range
-  private_ip_range = var.private_ip_range
+resource "aws_key_pair" "ec2_keypair" {
+  key_name   = "ec2_keypair"
+  public_key = tls_private_key.ssh.public_key_openssh
+}
+resource "tls_private_key" "ssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
