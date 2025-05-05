@@ -36,3 +36,20 @@ module "route_table" {
   internet_gateway_id = module.vpc.internet_gateway_id
   nat_gateway_id      = module.nat_gateway.nat_gateway_id
 }
+
+module "ec2" {
+  source           = "./modules/ec2"
+  ami_id           = var.ami_id
+  instance_type    = var.instance_type
+  key_name         = var.key_name
+  allowed_ip_range = var.allowed_ip_range
+}
+
+
+
+
+module "security_groups" {
+  source           = "./modules/security_groups"
+  public_ip_range  = var.public_ip_range
+  private_ip_range = var.private_ip_range
+}

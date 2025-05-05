@@ -28,3 +28,33 @@ variable "availability_zones" {
   description = "Availability zones"
   type        = list(string)
 }
+
+variable "ami_id" {
+  description = "AMI ID for EC2 instance"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+}
+
+variable "key_name" {
+  description = "Key pair name for EC2 instance"
+  type        = string
+}
+
+variable "allowed_ip_range" {
+  description = "Allowed IP range for EC2"
+  type        = list(string)
+}
+
+variable "public_ip_range" {
+  description = "Public IP range for Security Group"
+  type        = list(string)
+}
+
+variable "private_ip_range" {
+  description = "Private IP range for Security Group"
+  type        = list(string)
+}
