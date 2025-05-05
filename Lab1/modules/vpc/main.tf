@@ -26,7 +26,7 @@ resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.public_subnet[count.index]
   availability_zone = var.availability_zone[count.index % length(var.availability_zone)]
-
+  map_public_ip_on_launch = true  # <-- Dòng này rất quan trọng
   tags = {
     "Name" = "public-subnet"
   }
