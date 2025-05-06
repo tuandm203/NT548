@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 Instances Module
+
+Parameters:
+  PublicSubnetId:
+    Type: String
+    Description: Public Subnet ID
+  PrivateSubnetId:
+    Type: String
+    Description: Private Subnet ID
+  PublicSecurityGroupId:
+    Type: String
+    Description: Public Security Group ID
+  PrivateSecurityGroupId:
+    Type: String
+    Description: Private Security Group ID
+
+Resources:
+  PublicEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0323c3dd2da7fb37d
+      SubnetId: !Ref PublicSubnetId
+      SecurityGroupIds: 
+        - !Ref PublicSecurityGroupId
+      KeyName: nhom13
+      Tags:
+        - Key: Name
+          Value: Nhom13-Public
+
+  PrivateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0323c3dd2da7fb37d
+      SubnetId: !Ref PrivateSubnetId
+      SecurityGroupIds: 
+        - !Ref PrivateSecurityGroupId
+      KeyName: nhom13
+      Tags:
+        - Key: Name
+          Value: Nhom13-Private
+
+Outputs:
+  PublicInstanceId:
+    Description: Public EC2 Instance ID
+    Value: !Ref PublicEC2Instance
+  PrivateInstanceId:
+    Description: Private EC2 Instance ID
+    Value: !Ref PrivateEC2Instance

@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Gateways Module - Creates Internet Gateway and NAT Gateway
+
+Parameters:
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the VPC
+  PublicSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: ID of the Public Subnet for NAT Gateway
+
+Resources:
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCId
+      InternetGatewayId: !Ref InternetGateway
+
+  NatGatewayEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnetId
+
+Outputs:
+  InternetGatewayId:
+    Description: ID of the created Internet Gateway
+    Value: !Ref InternetGateway
+  NatGatewayId:
+    Description: ID of the created NAT Gateway
+    Value: !Ref NatGateway
