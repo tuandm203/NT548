@@ -1,67 +1,45 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Main template to create VPC, Subnets, EC2 instances and related resources
+Description: Root stack module VPC
 
 Resources:
-  VPCStack:
+  VPCModule:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/vpc.yaml
-
-  SubnetsStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: VPCStack
-    Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/subnets.yaml
+      TemplateURL: https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/vpc.yaml
       Parameters:
-        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        VpcCIDR: 10.0.0.0/16
+        PublicSubnetCIDR: 10.0.1.0/24
+        PrivateSubnetCIDR: 10.0.2.0/24
 
-  GatewaysStack:
+  NATGatewayModule:
     Type: AWS::CloudFormation::Stack
-    DependsOn: SubnetsStack
     Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/gateways.yaml
+      TemplateURL: https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/nat-gateway.yaml
       Parameters:
-        VPCId: !GetAtt VPCStack.Outputs.VPCId
-        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
+        VpcId: !GetAtt VPCModule.Outputs.VpcId
+        PublicSubnetId: !GetAtt VPCModule.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt VPCModule.Outputs.PrivateSubnetId
 
-  RouteTablesStack:
+  EC2Module:
     Type: AWS::CloudFormation::Stack
-    DependsOn: GatewaysStack
     Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/route-tables.yaml
+      TemplateURL: https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
       Parameters:
-        VPCId: !GetAtt VPCStack.Outputs.VPCId
-        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
-        PrivateSubnetId: !GetAtt SubnetsStack.Outputs.PrivateSubnetId
-        InternetGatewayId: !GetAtt GatewaysStack.Outputs.InternetGatewayId
-        NatGatewayId: !GetAtt GatewaysStack.Outputs.NatGatewayId
-
-  SecurityGroupsStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: RouteTablesStack
-    Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/security-groups.yaml
-      Parameters:
-        VPCId: !GetAtt VPCStack.Outputs.VPCId
-
-  EC2InstancesStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: SecurityGroupsStack
-    Properties:
-      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
-      Parameters:
-        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
-        PrivateSubnetId: !GetAtt SubnetsStack.Outputs.PrivateSubnetId
-        PublicSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.PublicSecurityGroupId
-        PrivateSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.PrivateSecurityGroupId
+        VpcId: !GetAtt VPCModule.Outputs.VpcId
+        PublicSubnetId: !GetAtt VPCModule.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt VPCModule.Outputs.PrivateSubnetId
+        KeyName: nhom13
+        AmiId: ami-01938df366ac2d954
 
 Outputs:
-  VPCId:
-    Description: VPC ID
-    Value: !GetAtt VPCStack.Outputs.VPCId
-  PublicInstanceId:
-    Description: Public EC2 Instance ID
-    Value: !GetAtt EC2InstancesStack.Outputs.PublicInstanceId
-  PrivateInstanceId:
-    Description: Private EC2 Instance ID
-    Value: !GetAtt EC2InstancesStack.Outputs.PrivateInstanceId
+  VpcId:
+    Description: VPC ID from the VPC Module
+    Value: !GetAtt VPCModule.Outputs.VpcId
+
+  PublicSubnetId:
+    Description: Public Subnet ID from the VPC Module
+    Value: !GetAtt VPCModule.Outputs.PublicSubnetId
+
+  PrivateSubnetId:
+    Description: Private Subnet ID from the VPC Module
+    Value: !GetAtt VPCModule.Outputs.PrivateSubnetId

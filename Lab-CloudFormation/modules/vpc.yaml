@@ -1,26 +1,133 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC Module
+Description: Module to create VPC with Subnets, IGW, NAT Gateway, and Route Tables
+
+Parameters:
+  VpcCIDR:
+    Type: String
+    Default: 10.0.0.0/16
+    # CIDR block for the VPC, defining the IP range for the VPC
+
+  PublicSubnetCIDR:
+    Type: String
+    Default: 10.0.1.0/24
+    # CIDR block for the Public Subnet, for resources that need internet access
+
+  PrivateSubnetCIDR:
+    Type: String
+    Default: 10.0.2.0/24
+    # CIDR block for the Private Subnet, for resources that should not have direct internet access
 
 Resources:
+  # Create the VPC with the CIDR block from parameters
   MyVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: !Ref VpcCIDR
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: MyVPC
+    # The VPC is created with DNS support and hostname resolution enabled
 
-  DefaultSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  # Create an Internet Gateway to connect the VPC to the Internet
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    # The Internet Gateway allows resources in the VPC to access the Internet
+
+  # Attach the Internet Gateway to the VPC
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      GroupDescription: Default VPC Security Group
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref InternetGateway
+    # This attachment connects the Internet Gateway to the VPC for Internet access
+
+  # Create the Public Subnet
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: true
+    # The Public Subnet automatically assigns public IPs to instances on launch
+
+  # Create the Private Subnet
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PrivateSubnetCIDR
+      MapPublicIpOnLaunch: false
+    # The Private Subnet will not assign public IPs to instances on launch
+
+  # Public Route Table to route traffic from Public Subnet to the Internet via the Internet Gateway
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
       VpcId: !Ref MyVPC
 
+  # Public Route to the Internet Gateway
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    # Traffic from the Public Subnet will be routed to the Internet via the Internet Gateway
+
+  # Associate the Public Subnet with the Public Route Table
+  PublicSubnetAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+    # Ensures that the Public Subnet uses the Public Route Table for routing traffic
+
+  # Create an Elastic IP for the NAT Gateway
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    # Elastic IP allows the NAT Gateway to have a stable public IP address
+
+  # Create the NAT Gateway in the Public Subnet
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP.AllocationId
+      SubnetId: !Ref PublicSubnet
+    # The NAT Gateway allows instances in the Private Subnet to access the Internet through the Public Subnet
+
+  # Create the Private Route Table to route traffic from Private Subnet via the NAT Gateway
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+
+  # Create Route for Private Route Table to route Internet traffic via the NAT Gateway
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+    # Traffic from the Private Subnet will be routed through the NAT Gateway to the Internet
+
+  # Associate the Private Subnet with the Private Route Table
+  PrivateSubnetAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !Ref PrivateRouteTable
+    # Ensures that the Private Subnet uses the Private Route Table for routing traffic
+
 Outputs:
-  VPCId:
-    Description: VPC ID
+  VpcId:
     Value: !Ref MyVPC
-    Export:
-      Name: !Sub "${AWS::StackName}-VPCId"
+  PublicSubnetId:
+    Value: !Ref PublicSubnet
+  PrivateSubnetId:
+    Value: !Ref PrivateSubnet
+    # Outputs provide information about the VPC, Public Subnet, and Private Subnet IDs after the stack is deployed

@@ -1,51 +1,82 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: EC2 Instances Module
+Description: Module to create 2 EC2 instances in Public and Private Subnets
 
 Parameters:
+  VpcId:
+    Type: String
+
   PublicSubnetId:
     Type: String
-    Description: Public Subnet ID
+
   PrivateSubnetId:
     Type: String
-    Description: Private Subnet ID
-  PublicSecurityGroupId:
-    Type: String
-    Description: Public Security Group ID
-  PrivateSecurityGroupId:
-    Type: String
-    Description: Private Security Group ID
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+
+  AmiId:
+    Type: AWS::EC2::Image::Id
 
 Resources:
-  PublicEC2Instance:
-    Type: AWS::EC2::Instance
+  # Public Security Group: Allows SSH from anywhere to the Public instance
+  PublicSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      InstanceType: t2.micro
-      ImageId: ami-0323c3dd2da7fb37d
-      SubnetId: !Ref PublicSubnetId
-      SecurityGroupIds: 
-        - !Ref PublicSecurityGroupId
-      KeyName: nhom13
-      Tags:
-        - Key: Name
-          Value: Nhom13-Public
+      GroupDescription: Allow SSH from anywhere
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 # Allows access from any IP address
 
-  PrivateEC2Instance:
+  # Private Security Group: Allows SSH only from Public instance to the Private instance
+  PrivateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH from public instance
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref PublicSecurityGroup # Allows access only from Public Security Group
+
+  # Public Instance: EC2 instance in the Public Subnet with a public IP
+  PublicInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
-      ImageId: ami-0323c3dd2da7fb37d
-      SubnetId: !Ref PrivateSubnetId
-      SecurityGroupIds: 
-        - !Ref PrivateSecurityGroupId
-      KeyName: nhom13
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PublicSubnetId
+      SecurityGroupIds:
+        - !Ref PublicSecurityGroup
       Tags:
         - Key: Name
-          Value: Nhom13-Private
+          Value: PublicInstance
+      AssociatePublicIpAddress: true # Ensures the instance has a public IP to allow SSH from the internet
+
+  # Private Instance: EC2 instance in the Private Subnet without a public IP
+  PrivateInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Ref AmiId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PrivateSubnetId
+      SecurityGroupIds:
+        - !Ref PrivateSecurityGroup
+      Tags:
+        - Key: Name
+          Value: PrivateInstance
+      AssociatePublicIpAddress: false # No public IP assigned to keep it private
 
 Outputs:
   PublicInstanceId:
-    Description: Public EC2 Instance ID
-    Value: !Ref PublicEC2Instance
+    Value: !Ref PublicInstance
+    Description: The ID of the Public EC2 instance
+
   PrivateInstanceId:
-    Description: Private EC2 Instance ID
-    Value: !Ref PrivateEC2Instance
+    Value: !Ref PrivateInstance
+    Description: The ID of the Private EC2 instance
