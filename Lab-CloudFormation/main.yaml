@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Main CloudFormation Stack with Nested Modules
+
+Parameters:
+  KeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair (e.g. nhom13-key)
+
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/vpc.yml
+
+  GatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/gateways.yml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+
+  SubnetStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/subnets.yml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+
+  SGStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/security-groups.yml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+
+  RouteTableStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/route-tables.yml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        SubnetId: !GetAtt SubnetStack.Outputs.PublicSubnetId
+        GatewayId: !GetAtt GatewayStack.Outputs.InternetGatewayId
+
+  EC2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: modules/ec2.yml
+      Parameters:
+        SubnetId: !GetAtt SubnetStack.Outputs.PublicSubnetId
+        SecurityGroupId: !GetAtt SGStack.Outputs.SecurityGroupId
+        KeyName: !Ref KeyName
