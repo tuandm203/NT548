@@ -4,7 +4,7 @@ Description: Subnets Module
 Parameters:
   VPCId:
     Type: String
-    Description: VPC ID
+    Description: The ID of the VPC to associate with the subnets
 
 Resources:
   PublicSubnet:
@@ -15,10 +15,11 @@ Resources:
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select 
         - 0
-        - !GetAZs Ref: 'AWS::Region'
+        - !GetAZs 
+            Ref: AWS::Region
       Tags:
         - Key: Name
-          Value: PublicSubnet
+          Value: !Sub "${AWS::StackName}-PublicSubnet"
 
   PrivateSubnet:
     Type: AWS::EC2::Subnet
@@ -28,19 +29,21 @@ Resources:
       MapPublicIpOnLaunch: false
       AvailabilityZone: !Select 
         - 1
-        - !GetAZs Ref: 'AWS::Region'
+        - !GetAZs 
+            Ref: AWS::Region
       Tags:
         - Key: Name
-          Value: PrivateSubnet
+          Value: !Sub "${AWS::StackName}-PrivateSubnet"
 
 Outputs:
   PublicSubnetId:
-    Description: Public Subnet ID
+    Description: ID of the public subnet
     Value: !Ref PublicSubnet
     Export:
       Name: !Sub "${AWS::StackName}-PublicSubnetId"
+
   PrivateSubnetId:
-    Description: Private Subnet ID
+    Description: ID of the private subnet
     Value: !Ref PrivateSubnet
     Export:
       Name: !Sub "${AWS::StackName}-PrivateSubnetId"

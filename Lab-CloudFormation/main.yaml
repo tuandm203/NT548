@@ -1,52 +1,62 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Main CloudFormation Stack with Nested Modules
-
-Parameters:
-  KeyName:
-    Type: String
-    Description: Name of an existing EC2 KeyPair (e.g. nhom13-key)
+Description: Main template to create VPC, Subnets, EC2 instances and related resources
 
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/vpc.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/vpc.yaml
 
-  GatewayStack:
+  SubnetsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/gateways.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/subnets.yaml
       Parameters:
-        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
 
-  SubnetStack:
+  GatewaysStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/subnets.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/gateways.yaml
       Parameters:
-        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
 
-  SGStack:
+  RouteTablesStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/security-groups.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/route-tables.yaml
       Parameters:
-        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt SubnetsStack.Outputs.PrivateSubnetId
+        InternetGatewayId: !GetAtt GatewaysStack.Outputs.InternetGatewayId
+        NatGatewayId: !GetAtt GatewaysStack.Outputs.NatGatewayId
 
-  RouteTableStack:
+  SecurityGroupsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/route-tables.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/security-groups.yaml
       Parameters:
-        VpcId: !GetAtt VPCStack.Outputs.VPCID
-        SubnetId: !GetAtt SubnetStack.Outputs.PublicSubnetId
-        GatewayId: !GetAtt GatewayStack.Outputs.InternetGatewayId
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
 
-  EC2Stack:
+  EC2InstancesStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: modules/ec2.yml
+      TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
       Parameters:
-        SubnetId: !GetAtt SubnetStack.Outputs.PublicSubnetId
-        SecurityGroupId: !GetAtt SGStack.Outputs.SecurityGroupId
-        KeyName: !Ref KeyName
+        PublicSubnetId: !GetAtt SubnetsStack.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt SubnetsStack.Outputs.PrivateSubnetId
+        PublicSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.PublicSecurityGroupId
+        PrivateSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.PrivateSecurityGroupId
+
+Outputs:
+  VPCId:
+    Description: VPC ID
+    Value: !GetAtt VPCStack.Outputs.VPCId
+  PublicInstanceId:
+    Description: Public EC2 Instance ID
+    Value: !GetAtt EC2InstancesStack.Outputs.PublicInstanceId
+  PrivateInstanceId:
+    Description: Private EC2 Instance ID
+    Value: !GetAtt EC2InstancesStack.Outputs.PrivateInstanceId
