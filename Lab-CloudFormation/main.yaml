@@ -9,6 +9,7 @@ Resources:
 
   SubnetsStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: VPCStack
     Properties:
       TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/subnets.yaml
       Parameters:
@@ -16,6 +17,7 @@ Resources:
 
   GatewaysStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: SubnetsStack
     Properties:
       TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/gateways.yaml
       Parameters:
@@ -24,6 +26,7 @@ Resources:
 
   RouteTablesStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: GatewaysStack
     Properties:
       TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/route-tables.yaml
       Parameters:
@@ -35,6 +38,7 @@ Resources:
 
   SecurityGroupsStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: RouteTablesStack
     Properties:
       TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/security-groups.yaml
       Parameters:
@@ -42,6 +46,7 @@ Resources:
 
   EC2InstancesStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: SecurityGroupsStack
     Properties:
       TemplateURL: https://nhom13-lab1-cloudformation.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
       Parameters:

@@ -13,13 +13,11 @@ Resources:
       VpcId: !Ref VPCId
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
-      AvailabilityZone: !Select 
-        - 0
-        - !GetAZs 
-          Ref: 'AWS::Region'
+      AvailabilityZone: ap-southeast-1c
       Tags:
-        - Key: Name
-          Value: PublicSubnet
+        
+        Key: Name
+        Value: PublicSubnet
 
   PrivateSubnet:
     Type: AWS::EC2::Subnet
@@ -27,13 +25,11 @@ Resources:
       VpcId: !Ref VPCId
       CidrBlock: 10.0.2.0/24
       MapPublicIpOnLaunch: false
-      AvailabilityZone: !Select 
-        - 1
-        - !GetAZs 
-          Ref: 'AWS::Region'
+      AvailabilityZone: ap-southeast-1a
       Tags:
-        - Key: Name
-          Value: PrivateSubnet
+        
+        Key: Name
+        Value: PrivateSubnet
 
 Outputs:
   PublicSubnetId:
