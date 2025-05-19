@@ -8,7 +8,6 @@
 *.pem
 
 
-
 # Terraform plan output
 *.out
 
