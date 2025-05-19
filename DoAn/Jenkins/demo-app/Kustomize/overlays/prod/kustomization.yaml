@@ -1,0 +1,7 @@
+namespace: production
+resources:
+- ../../base
+
+images:
+- name: tuan1102003/demo-app
+  newTag: v1.0.0

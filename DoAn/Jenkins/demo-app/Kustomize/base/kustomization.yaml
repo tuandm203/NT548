@@ -1,0 +1,8 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+
+images:
+  - name: placeholder/image
+    newName: tuan1102003/demo-app
+    newTag: latest
