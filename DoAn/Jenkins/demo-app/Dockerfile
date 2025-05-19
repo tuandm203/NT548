@@ -1,2 +1,5 @@
-FROM nginx
-COPY web3 /usr/share/nginx/html
+FROM nginx:latest
+
+COPY web1/ /usr/share/nginx/html
+
+#EXPOSE 80
