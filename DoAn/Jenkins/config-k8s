@@ -1,0 +1,29 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJTjJHMU00ZzNuZTR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMU1Ua3dOakl3TURWYUZ3MHpOVEExTVRjd05qSTFNRFZhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUMzT0FwTGVqY2NCc2hPbStsRjRiU2N6b2R0MDhia1BTZStjVGhxWE0wdzBmUjJzWXZFWVdwemVFdEUKSkZrVERpUG1oTU1aMi9lWWpnT2ZGKzRJTFRFN2hZb3djSTV1cStHbVNoODc0ZS9RaDhVQlFmLzBtYzY5cjkxMQpKZm5mNmVmNWRCVmtCS2xlTTBCY0FVNSs4R3VFWUt4bmg5VDFZSXh2TDBybmJQbDN1bmNZU2Zja2ZNZko4dmdtCml1M0ZxeHU1dm5aWHZ4L3hFeVF6RXRyMHVIU05zQi9GVksvNEMvRzZnTWFWOGVjU2M0c0VQU1hsSE9KV1Y0SDAKSTBhWHV0TTNQYVlWanNrSkpTSXg1Wmg5OEs3TS9JdnBoQ1FmdTZKQ0FGL1ZRdmdNUEpUSjZhL2VqZ2pOTWlLQwpiWFB2TGs2cnA2cS8rcGdQbFEvN1ZvZmZ1RXp0QWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUYUdsVGgrVXJUa2NQOCtnMCs5SkI0cGxlOC9qQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQnBOS0lOd1ZrTwpUdDVUak9ZVHA0cm01VGU5eVBTb3g5R3pjQitiOE05akVDZHBVdEh0aGk0VnVsdVd2WGJtbHptL2RLSjFUM0R5CmxGa21lUXdpeG51S0tBK0VMSStxQzRKOVdBaUovVU5temhCYmRJREdsWWtEK09BY0FQcFByNVRKNU8zcS9ETDAKUnNaMUNLd3IvSXg1cGo4dXVnUlNqdmJWaWRIQWZvZWxFK1BLbzhmZDFEalcwZnJwRFd5bHJDaXlINzZBanhuYgp0YmFIbElDbHRtU0EyMUlQcnFDN0FqajlnZVFpZVZNRXN5Y1gvbXBvUE1xM0MxNVpreUNCU0p3b2lMbWpORGhrCmZKNW5UNjFIZXJnYVN0REpZL2NWQXFXKytXbmFPTHZONkZNK1NybzhDelUwaFczNGFkYzd6c0hTWFJaNVpMUGYKOGtqYmoyQ3h2YzV4Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    server: https://6729B0C0985D51E79CF846D5C3B43524.gr7.ap-southeast-1.eks.amazonaws.com
+  name: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+contexts:
+- context:
+    cluster: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+    user: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+  name: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+current-context: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:ap-southeast-1:689890720727:cluster/da_vpc-eks
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - --region
+      - ap-southeast-1
+      - eks
+      - get-token
+      - --cluster-name
+      - da_vpc-eks
+      - --output
+      - json
+      command: aws
