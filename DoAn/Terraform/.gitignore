@@ -3,7 +3,9 @@
 
 # Local state files
 *.tfstate
-*.tfstate.backup
+*.tfstate.backu
+*.tfstate
+*.pem
 
 
 # Terraform plan output
@@ -11,7 +13,8 @@
 
 # Lock file (optional, keeps version pinning)
 .terraform.lock.hcl
-
+.terraform.tfstate.lock.info
+terraform.tfstate.backup
 # Binary files
 *.exe
 
