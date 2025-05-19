@@ -147,7 +147,7 @@ module "eks" {
   cluster_role_arn     = aws_iam_role.eks_cluster_role.arn
   node_role_arn        = aws_iam_role.eks_node_role.arn
 
-  node_instance_types  = ["t2.micro"]
+  node_instance_types  = ["t2.medium"]
   node_desired_size    = 2
   node_min_size        = 2
   node_max_size        = 2
