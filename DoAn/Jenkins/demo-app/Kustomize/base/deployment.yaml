@@ -1,9 +1,10 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-app
+  name: app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: demo-app
@@ -13,7 +14,7 @@ spec:
         app: demo-app
     spec:
       containers:
-      - name: demo-app
-        image: placeholder/image:tag
+      - name: app
+        image: tuan1102003/demo-app
         ports:
-        - containerPort: 8080
+        - containerPort: 80
