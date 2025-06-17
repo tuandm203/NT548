@@ -5,37 +5,35 @@ env:
     AWS_DEFAULT_REGION: ap-southeast-1
 
 phases:
-  install 
+  install:
     runtime-versions:
       python: 3.9
     commands:
       - echo ">> Starting INSTALL phase at $(date)"
-      - echo "Installing Python tools..."
       - pip install --upgrade pip
       - pip install cfn-lint
       - pip install taskcat
-      - echo "Python tools installed."
       - echo ">> INSTALL phase completed at $(date)"
 
   pre_build:
-      commands:
+    commands:
       - echo ">> Starting PRE-BUILD phase at $(date)"
-      - echo "Checking tool versions..."
       - python --version
       - pip --version
       - aws --version
       - cfn-lint --version
       - taskcat --version
-      - echo "Checking directory and file structure..."
       - test -f main.yaml && echo "Found main.yaml" || (echo "main.yaml not found!" && exit 1)
-      - test -d modules && echo "Found modules/ directory" || echo "Warning: modules/ directory not found"
+      - test -d Module && echo "Found Modules/ directory" || echo "Warning: Module/ directory not found"
       - echo ">> PRE-BUILD phase completed at $(date)"
 
   build:
     commands:
       - echo ">> Starting BUILD phase at $(date)"
-      - echo "Running cfn-lint..."
-      - cfn-lint main.yaml || (echo "cfn-lint failed, exiting." && exit 1)
+      - echo "Running cfn-lint on main.yaml..."
+      - cfn-lint main.yaml || (echo "cfn-lint failed on main.yaml, exiting." && exit 1)
+      - echo "Running cfn-lint on Modules/*.yaml..."
+      - cfn-lint Module/*.yaml || (echo "cfn-lint failed on module templates, exiting." && exit 1)
       - echo "Running AWS validate-template..."
       - aws cloudformation validate-template --template-body file://main.yaml || (echo "validate-template failed, exiting." && exit 1)
       - echo "Running taskcat tests..."
@@ -43,6 +41,7 @@ phases:
       - echo "Cleaning up taskcat test stacks..."
       - taskcat test clean ALL || echo "Warning: taskcat cleanup may have failed"
       - echo ">> BUILD phase completed at $(date)"
+
   post_build:
     commands:
       - echo ">> Starting POST-BUILD phase at $(date)"
@@ -56,18 +55,16 @@ phases:
 reports:
   taskcat-report:
     files:
-      - taskcat_outputs/**/*     
+      - taskcat_outputs/**/*
 
 artifacts:
   files:
-    - main.yaml                 
-    - modules/*.yaml             
-    - taskcat.log               
-    - taskcat_outputs/**/*       
-  name: lab2-unique-artifacts    
+    - main.yaml
+    - Modules/*.yaml
+    - taskcat.log
+    - taskcat_outputs/**/*
+  name: lab2-unique-artifacts
 
 cache:
   paths:
-    - '/root/.cache/pip/**/*'   
-
-
+    - '/root/.cache/pip/**/*'

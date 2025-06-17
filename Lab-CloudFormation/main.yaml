@@ -5,7 +5,7 @@ Resources:
   VPCModule:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/vpc.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/vpc.yaml
+      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/Modules/vpc.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/vpc.yaml
       Parameters:
         VpcCIDR: 10.0.0.0/16
         PublicSubnetCIDR: 10.0.1.0/24
@@ -14,7 +14,7 @@ Resources:
   NATGatewayModule:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/nat-gateways.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/nat-gateway.yaml
+      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/Modules/nat-gateways.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/nat-gateway.yaml
       Parameters:
         VpcId: !GetAtt VPCModule.Outputs.VpcId
         PublicSubnetId: !GetAtt VPCModule.Outputs.PublicSubnetId
@@ -23,7 +23,7 @@ Resources:
   EC2Module:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/ec2.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
+      TemplateURL: https://lab2-group13-bucket.s3.us-east-1.amazonaws.com/Modules/ec2.yaml #https://nhom13-cloudformation-1.s3.ap-southeast-1.amazonaws.com/modules/ec2.yaml
       Parameters:
         VpcId: !GetAtt VPCModule.Outputs.VpcId
         PublicSubnetId: !GetAtt VPCModule.Outputs.PublicSubnetId
