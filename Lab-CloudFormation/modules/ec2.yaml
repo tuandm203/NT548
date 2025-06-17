@@ -55,7 +55,7 @@ Resources:
       Tags:
         - Key: Name
           Value: PublicInstance
-      AssociatePublicIpAddress: true # Ensures the instance has a public IP to allow SSH from the internet
+      #AssociatePublicIpAddress: true # Ensures the instance has a public IP to allow SSH from the internet
 
   # Private Instance: EC2 instance in the Private Subnet without a public IP
   PrivateInstance:
@@ -67,10 +67,10 @@ Resources:
       SubnetId: !Ref PrivateSubnetId
       SecurityGroupIds:
         - !Ref PrivateSecurityGroup
-      Tags:
+      Tags: 
         - Key: Name
           Value: PrivateInstance
-      AssociatePublicIpAddress: false # No public IP assigned to keep it private
+      #AssociatePublicIpAddress: false # No public IP assigned to keep it private
 
 Outputs:
   PublicInstanceId:

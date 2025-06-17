@@ -1,0 +1,17 @@
+project:
+  name: lab2-taskcat-final
+  regions:
+    - ap-southeast-1
+  s3_bucket: '' 
+
+tests:
+  lab2-singapore-test:
+    template: ./main.yaml
+    regions:
+      - ap-southeast-1
+    parameters:
+      VpcCIDR: 10.30.0.0/16
+      PublicSubnetCIDR: 10.30.1.0/24
+      PrivateSubnetCIDR: 10.30.2.0/24
+      KeyName: lab2-keypair       
+      AmiId: ami-0df7a207adb9748c7  # Amazon Linux 2 AMI public tại Singapore
